@@ -1,4 +1,4 @@
-*Express/Connect middleware for proxying files from S3 to Internet
+#Express/Connect middleware for proxying files from S3 to Internet
 
 With this middleware you can:
 - check authorization of user to access target object
@@ -8,7 +8,7 @@ This middleware supports:
 - Caching objects
 - Piping objects from S3 to response, objects don't fully loaded in memory
 
-**Install
+##Install
 
 `npm install s3layer`
 
