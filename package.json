@@ -8,6 +8,10 @@
   },
   "author": "calibr",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calibr/node-s3layer"
+  },
   "dependencies": {
     "aws-sdk": "^2.1.16"
   },
