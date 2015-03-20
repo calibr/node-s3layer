@@ -44,7 +44,7 @@ function S3Layer(config) {
       if(headers["if-none-match"]) {
         getReq.IfNoneMatch = headers["if-none-match"];
       }
-      getReq.Bucket = config.bucket;
+      getReq.Bucket = resultInfo.bucket || config.bucket;
       getReq.Key = resultInfo.key;
       var req = S3.getObject(getReq);
       req.on("httpHeaders", function(statusCode, headers) {

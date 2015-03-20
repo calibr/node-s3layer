@@ -22,7 +22,7 @@ var
 AWS_SETUP = {
   accessKeyId: "...",
   secretAccessKey: "...",
-  bucket: "..."
+  bucket: "..." // default bucket
 };
 
 var s3l = S3Layer({
@@ -47,4 +47,28 @@ var s3l = S3Layer({
 });
 
 app.use("/files", s3l);
+```
+
+###getS3Key
+
+Accepts request params and callback function, in callback function you can return:
+
+- `string` - interpreted as S3 Key
+- `object` which can contain `key` and `bucket` fields
+
+For example: 
+
+```javascript
+  getS3Key: function(params, cb) {
+    params.url = params.url.replace(/^\//, "");
+    if(params.url == "restricted-file.png") {
+      params.res.status(403).send("Forbidden");
+      return;
+    }
+    // proxy request to Key = params.url
+    cb(null, {
+      key: params.url,
+      bucket: "another-bucket"
+    });
+  }
 ```
