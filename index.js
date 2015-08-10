@@ -47,7 +47,17 @@ function S3Layer(config) {
       getReq.Bucket = resultInfo.bucket || config.bucket;
       getReq.Key = resultInfo.key;
       var req = S3.getObject(getReq);
+      var requestSent = false;
       req.on("httpHeaders", function(statusCode, headers) {
+        if(requestSent) {
+          // prevent Headers Already Sent error
+          return;
+        }
+        if(statusCode == 503) {
+          // ignore 503 errors(Service Unavailable) because aws lib retry request
+          // if recieved this code, until success code received
+          return;
+        }
         var outHeaders = {};
         if(headers["last-modified"]) {
           outHeaders["Last-Modified"] = headers["last-modified"];
@@ -64,9 +74,16 @@ function S3Layer(config) {
         res.writeHead(statusCode, outHeaders);
       });
       req.on('httpData', function(chunk) {
+        if(requestSent) {
+          return;
+        }
         res.write(chunk);
       });
       req.on('httpDone', function(chunk) {
+        if(requestSent) {
+          return;
+        }
+        requestSent = true;
         res.end();
       });
       req.send();
