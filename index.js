@@ -48,11 +48,13 @@ function S3Layer(config) {
       getReq.Key = resultInfo.key;
       var req = S3.getObject(getReq);
       var requestSent = false;
+      var lastStatusCode;
       req.on("httpHeaders", function(statusCode, headers) {
         if(requestSent) {
           // prevent Headers Already Sent error
           return;
         }
+        lastStatusCode = statusCode;
         if(statusCode == 503) {
           // ignore 503 errors(Service Unavailable) because aws lib retry request
           // if recieved this code, until success code received
@@ -81,6 +83,10 @@ function S3Layer(config) {
       });
       req.on('httpDone', function(chunk) {
         if(requestSent) {
+          return;
+        }
+        if(lastStatusCode >= 500 && lastStatusCode <= 599) {
+          // ignore 5xx errors sending
           return;
         }
         requestSent = true;
