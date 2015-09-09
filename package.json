@@ -1,6 +1,6 @@
 {
   "name": "s3layer",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Node.js middleware for controlled proxying Amazon S3 objects to Internet",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,8 @@
     "url": "https://github.com/calibr/node-s3layer"
   },
   "dependencies": {
-    "aws-sdk": "^2.1.16"
+    "aws-sdk": "^2.1.16",
+    "lodash": "^3.10.1"
   },
   "devDependencies": {
     "express": "^4.12.2"

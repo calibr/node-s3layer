@@ -1,6 +1,7 @@
 var
   AWS = require('aws-sdk'),
-  headersS3Keys = {};
+  headersS3Keys = {},
+  _ = require("lodash");
 
 function S3Layer(config) {
   AWS.config.update({
@@ -79,6 +80,9 @@ function S3Layer(config) {
             outHeaders: outHeaders,
             key: resultInfo.key
           });
+        }
+        if(resultInfo.headers) {
+          outHeaders = _.extend(outHeaders, resultInfo.headers);
         }
         res.writeHead(statusCode, outHeaders);
       });
