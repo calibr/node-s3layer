@@ -73,6 +73,13 @@ function S3Layer(config) {
         if(headers["content-length"]) {
           outHeaders["Content-Length"] = headers["content-length"];
         }
+        if(config.modifyHeaders) {
+          config.modifyHeaders({
+            headers: headers,
+            outHeaders: outHeaders,
+            key: resultInfo.key
+          });
+        }
         res.writeHead(statusCode, outHeaders);
       });
       req.on('httpData', function(chunk) {

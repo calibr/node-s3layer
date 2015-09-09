@@ -72,3 +72,24 @@ For example:
     });
   }
 ```
+
+###modifyHeaders
+
+You can modify headers returned for file, with `modifyHeaders` callback:
+
+For example
+
+```javascript
+  /**
+   * @param  {Object} params
+   * @return {Object} params.headers - headers returned from Amazon S3
+   * @return {Object} params.outHeaders - headers will be returned in HTTP response, you can modify them
+   */
+  modifyHeaders: function(params) {
+    if(params.headers["content-type"] && params.headers["content-type"].indexOf("image/") === 0) {
+      params.outHeaders["Content-Disposition"] = 'attachment; filename="img.jpg"';
+    }
+  }
+```
+
+**`modifyHeaders` is synchronous!**
