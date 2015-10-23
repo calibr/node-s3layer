@@ -4,10 +4,7 @@ var
   _ = require("lodash");
 
 function S3Layer(config) {
-  AWS.config.update({
-    accessKeyId: config.accessKeyId,
-    secretAccessKey: config.secretAccessKey
-  });
+  AWS.config.update(config.AWS);
   var S3 = new AWS.S3();
 
   return function(req, res, nextMiddleware) {

@@ -26,8 +26,7 @@ AWS_SETUP = {
 };
 
 var s3l = S3Layer({
-  accessKeyId: AWS_SETUP.accessKeyId,
-  secretAccessKey: AWS_SETUP.secretAccessKey,
+  AWS: AWS_SETUP,
   bucket: AWS_SETUP.bucket,
   /**
   * params has fields:
@@ -56,7 +55,7 @@ Accepts request params and callback function, in callback function you can retur
 - `string` - interpreted as S3 Key
 - `object` which can contain `key` and `bucket` fields
 
-For example: 
+For example:
 
 ```javascript
   getS3Key: function(params, cb) {
