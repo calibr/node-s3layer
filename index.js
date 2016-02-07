@@ -1,7 +1,17 @@
 var
   AWS = require('aws-sdk'),
   headersS3Keys = {},
-  _ = require("lodash");
+  _ = require("lodash"),
+  debug = require("util").debuglog("s3layer");
+
+var allowedOutputHeaders = [
+  "last-modified",
+  "etag",
+  "content-type",
+  "content-length",
+  "accept-ranges",
+  "content-range"
+];
 
 function S3Layer(config) {
   AWS.config.update(config.AWS);
@@ -42,8 +52,12 @@ function S3Layer(config) {
       if(headers["if-none-match"]) {
         getReq.IfNoneMatch = headers["if-none-match"];
       }
+      if(headers["range"]) {
+        getReq.Range = headers["range"];
+      }
       getReq.Bucket = resultInfo.bucket || config.bucket;
       getReq.Key = resultInfo.key;
+      debug("S3 object request", getReq);
       var req = S3.getObject(getReq);
       var requestSent = false;
       var lastStatusCode;
@@ -59,18 +73,11 @@ function S3Layer(config) {
           return;
         }
         var outHeaders = {};
-        if(headers["last-modified"]) {
-          outHeaders["Last-Modified"] = headers["last-modified"];
-        }
-        if(headers["etag"]) {
-          outHeaders["ETag"] = headers["etag"];
-        }
-        if(headers["content-type"]) {
-          outHeaders["Content-Type"] = headers["content-type"];
-        }
-        if(headers["content-length"]) {
-          outHeaders["Content-Length"] = headers["content-length"];
-        }
+        allowedOutputHeaders.forEach(function(allowedHeaderName) {
+          if(headers[allowedHeaderName]) {
+            outHeaders[allowedHeaderName] = headers[allowedHeaderName];
+          }
+        });
         if(config.modifyHeaders) {
           config.modifyHeaders({
             headers: headers,

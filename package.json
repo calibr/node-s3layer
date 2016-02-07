@@ -1,6 +1,6 @@
 {
   "name": "s3layer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Node.js middleware for controlled proxying Amazon S3 objects to Internet",
   "main": "index.js",
   "scripts": {
