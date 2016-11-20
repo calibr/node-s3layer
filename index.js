@@ -21,13 +21,14 @@ function S3Layer(config) {
     var
       url = req.url,
       getReq = {},
-      headers = req.headers;
+      headers = req.headers,
+      processed = false;
 
-    config.getS3Key({
-      req: req,
-      res: res,
-      url: url
-    }, function(err, resultInfo) {
+    var processResponse = function(err, resultInfo) {
+      if(processed) {
+        return;
+      }
+      processed = true;
       if(err) {
         return nextMiddleware(err);
       }
@@ -108,7 +109,20 @@ function S3Layer(config) {
         res.end();
       });
       req.send();
-    });
+    };
+
+    var promise = config.getS3Key({
+      req: req,
+      res: res,
+      url: url
+    }, processResponse);
+    if(promise && promise.then) {
+      promise.then(function(resultInfo) {
+        processResponse(null, resultInfo);
+      }).catch(function(err) {
+        processResponse(err);
+      });
+    }
   };
 }
 
