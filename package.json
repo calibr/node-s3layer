@@ -1,6 +1,6 @@
 {
   "name": "s3layer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Node.js middleware for controlled proxying Amazon S3 objects to Internet",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "dependencies": {
-    "aws-sdk": "^2.2.11",
+    "aws-sdk": "^2.458.0",
     "lodash": "^3.10.1"
   },
   "devDependencies": {
