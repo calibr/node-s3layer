@@ -62,8 +62,9 @@ function S3Layer(config) {
       var req = S3.getObject(getReq);
       var requestSent = false;
       var lastStatusCode;
+      let headWritten = false
       req.on("httpHeaders", function(statusCode, headers) {
-        if(requestSent) {
+        if(requestSent || headWritten) {
           // prevent Headers Already Sent error
           return;
         }
@@ -90,13 +91,11 @@ function S3Layer(config) {
           outHeaders = _.extend(outHeaders, resultInfo.headers);
         }
         res.writeHead(statusCode, outHeaders);
+        headWritten = true
       });
-      req.on('httpData', function(chunk) {
-        if(requestSent) {
-          return;
-        }
-        res.write(chunk);
-      });
+      const stream = req.createReadStream()
+      stream.pipe(res)
+
       req.on('httpDone', function(chunk) {
         if(requestSent) {
           return;
@@ -106,9 +105,18 @@ function S3Layer(config) {
           return;
         }
         requestSent = true;
-        res.end();
       });
-      req.send();
+      req.on('error', err => {
+        if(err.code === 'NoSuchKey') {
+          res.end()
+        }
+      })
+      stream.on('error', err => {
+        if(err.code === 'NotModified') {
+          debug('file not modified, end the response')
+          res.end()
+        }
+      })
     };
 
     var promise = config.getS3Key({
