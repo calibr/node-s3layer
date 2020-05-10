@@ -2,7 +2,8 @@ var
   AWS = require('aws-sdk'),
   headersS3Keys = {},
   _ = require("lodash"),
-  debug = require("util").debuglog("s3layer");
+  debug = require("util").debuglog("s3layer"),
+  EventEmitter = require('events')
 
 var allowedOutputHeaders = [
   "last-modified",
@@ -13,16 +14,26 @@ var allowedOutputHeaders = [
   "content-range"
 ];
 
+let lastRequestId = 0
+
 function S3Layer(config) {
   AWS.config.update(config.AWS);
   var S3 = new AWS.S3();
 
-  return function(req, res, nextMiddleware) {
+  const events = new EventEmitter()
+
+  const middleware = function(req, res, nextMiddleware) {
     var
       url = req.url,
       getReq = {},
       headers = req.headers,
       processed = false;
+
+    const requestId = ++lastRequestId
+
+    events.emit('start', {
+      requestId
+    })
 
     var processResponse = function(err, resultInfo) {
       if(processed) {
@@ -64,6 +75,11 @@ function S3Layer(config) {
       var lastStatusCode;
       let headWritten = false
       req.on("httpHeaders", function(statusCode, headers) {
+        events.emit('headers', {
+          requestId,
+          statusCode,
+          headers
+        })
         if(requestSent || headWritten) {
           // prevent Headers Already Sent error
           return;
@@ -100,6 +116,10 @@ function S3Layer(config) {
         if(requestSent) {
           return;
         }
+        events.emit('done', {
+          requestId,
+          statusCode: lastStatusCode
+        })
         if(lastStatusCode >= 500 && lastStatusCode <= 599) {
           // ignore 5xx errors sending
           return;
@@ -132,6 +152,8 @@ function S3Layer(config) {
       });
     }
   };
+
+  middleware.events = events
 }
 
 module.exports = exports = S3Layer;
