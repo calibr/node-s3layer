@@ -154,6 +154,7 @@ function S3Layer(config) {
   };
 
   middleware.events = events
+  return middleware
 }
 
 module.exports = exports = S3Layer;
