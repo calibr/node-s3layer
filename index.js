@@ -32,7 +32,9 @@ function S3Layer(config) {
     const requestId = ++lastRequestId
 
     events.emit('start', {
-      requestId
+      requestId,
+      headers,
+      url
     })
 
     var processResponse = function(err, resultInfo) {
@@ -112,14 +114,17 @@ function S3Layer(config) {
       const stream = req.createReadStream()
       stream.pipe(res)
 
-      req.on('httpDone', function(chunk) {
-        if(requestSent) {
-          return;
-        }
+      res.on('finish', () => {
         events.emit('done', {
           requestId,
           statusCode: lastStatusCode
         })
+      })
+
+      req.on('httpDone', function(chunk) {
+        if(requestSent) {
+          return;
+        }
         if(lastStatusCode >= 500 && lastStatusCode <= 599) {
           // ignore 5xx errors sending
           return;
