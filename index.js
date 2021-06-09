@@ -71,12 +71,14 @@ function S3Layer(config) {
       }
       getReq.Bucket = resultInfo.bucket || config.bucket;
       getReq.Key = resultInfo.key;
-      debug("S3 object request", getReq);
+      debug("S3 object request", JSON.stringify(getReq));
       var req = S3.getObject(getReq);
       var requestSent = false;
       var lastStatusCode;
       let headWritten = false
       req.on("httpHeaders", function(statusCode, headers) {
+        debug("Got S3 headers", statusCode, JSON.stringify(headers))
+
         events.emit('headers', {
           requestId,
           statusCode,
