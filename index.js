@@ -127,6 +127,7 @@ function S3Layer(config) {
         if(requestSent) {
           return;
         }
+        debug('request done for', JSON.stringify(resultInfo), lastStatusCode)
         if(lastStatusCode >= 500 && lastStatusCode <= 599) {
           // ignore 5xx errors sending
           return;
@@ -134,6 +135,7 @@ function S3Layer(config) {
         requestSent = true;
       });
       req.on('error', err => {
+        debug('got error from s3', err.message)
         if(err.code === 'NoSuchKey') {
           res.end()
         }
@@ -142,6 +144,8 @@ function S3Layer(config) {
         if(err.code === 'NotModified') {
           debug('file not modified, end the response')
           res.end()
+        } else {
+          debug('got stream error', err.message)
         }
       })
     };
